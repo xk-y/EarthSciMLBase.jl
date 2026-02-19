@@ -123,7 +123,7 @@ function ODEProblem(s::CoupledSystem, st::SolverStrang; u0 = nothing, tspan = no
         stiff_callback(setp!, u0, st, IIchunks, stiff_integrators),
         get_callbacks(s, coord_sys, coord_args, dom, st.alg)...
     )
-    ODEProblem(nonstiff_op, view(u0, :), (start, finish), nonstiff_p; callback = cb,
+    ODEProblem(ODEFunction(nonstiff_op; sys=sys_mtk), view(u0, :), (start, finish), nonstiff_p; callback = cb,
         dt = st.timestep, kwargs...)
 end
 
