@@ -352,7 +352,10 @@ function coord_params(mtk_sys::AbstractSystem, domain::DomainInfo)
     _pvidx = [matching_suffix_idx(params, p) for p in pv]
     for (i, idx) in enumerate(_pvidx)
         if length(idx) > 1
-            error("Partial independent variable '$(pv[i])' has multiple matches in system parameters: [$(parameters(mtk_sys)[idx])].")
+            # Multiple subsystems may share the same coordinate parameter (e.g. lev).
+            # They all receive the same grid coordinate value, so pick the first match.
+            @warn "Partial independent variable '$(pv[i])' has $(length(idx)) matches: $(parameters(mtk_sys)[idx]). Using first."
+            _pvidx[i] = idx[1:1]
         elseif length(idx) == 0
             error("Partial independent variable '$(pv[i])' not found in system parameters [$(parameters(mtk_sys))].")
         end
