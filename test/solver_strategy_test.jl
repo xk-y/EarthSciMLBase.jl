@@ -446,3 +446,16 @@ end
         @test cc.runcount > 0
     end
 end
+
+
+@testset "Strang stiff_kwargs strip build-only kwargs" begin
+    # `sparse`/`optimize` configure the ODEFunction BUILD; OrdinaryDiffEq's
+    # solve/init rejects them ("Unrecognized keyword arguments"). The Strang
+    # strategies must keep them visible to the builder but strip them from the
+    # kwargs forwarded to the inner stiff integrator.
+    st = SolverStrangThreads(TRBDF2(), 300.0f0; sparse = true, reltol = 1e-2)
+    fwd = Base.structdiff((; st.stiff_kwargs...), NamedTuple{(:sparse, :optimize)})
+    @test !(:sparse in keys(fwd)) && !(:optimize in keys(fwd))
+    @test fwd.reltol == 1e-2
+    @test :sparse in keys((; st.stiff_kwargs...))
+end
