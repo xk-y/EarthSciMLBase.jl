@@ -533,8 +533,9 @@ struct _Bare end
 EarthSciMLBase.get_needed_vars(::_MockPBLCallback, sys, mtk_sys, domain) = [:A1_PBLH_marker]
 
 @testset "callback_vars + 2-arg factory forwarding" begin
+    import Dates
 
-_dom = EarthSciMLBase.DomainInfo(DateTime(2016, 1, 1), DateTime(2016, 1, 2);
+_dom = EarthSciMLBase.DomainInfo(Dates.DateTime(2016, 1, 1), Dates.DateTime(2016, 1, 2);
     lonrange = deg2rad(-90):deg2rad(1):deg2rad(-88),
     latrange = deg2rad(30):deg2rad(1):deg2rad(32),
     levrange = 1:2, u_proto = zeros(Float64, 1, 1, 1, 1))
@@ -546,14 +547,14 @@ _dom = EarthSciMLBase.DomainInfo(DateTime(2016, 1, 1), DateTime(2016, 1, 2);
         EarthSciMLBase.ModelingToolkit.PDESystem[], nothing, Any[],
         EarthSciMLBase.Operator[], EarthSciMLBase.DECallback[],
         Any[_MockPBLCallback()])
-    @test callback_vars(cs, nothing, _dom) == [:A1_PBLH_marker]
+    @test EarthSciMLBase.callback_vars(cs, nothing, _dom) == [:A1_PBLH_marker]
 
     # a callback with NO get_needed_vars method is silently skipped (not an error)
     cs2 = CoupledSystem(EarthSciMLBase.ModelingToolkit.AbstractSystem[],
         EarthSciMLBase.ModelingToolkit.PDESystem[], nothing, Any[],
         EarthSciMLBase.Operator[], EarthSciMLBase.DECallback[],
         Any[_Bare(), _MockPBLCallback()])
-    @test callback_vars(cs2, nothing, _dom) == [:A1_PBLH_marker]
+    @test EarthSciMLBase.callback_vars(cs2, nothing, _dom) == [:A1_PBLH_marker]
 end
 
 @testset "factory dispatch: 2-arg receives extra_needed; 1-arg unchanged" begin
